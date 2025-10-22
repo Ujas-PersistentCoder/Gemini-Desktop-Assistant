@@ -2,6 +2,7 @@
 import os  # Used to access environment variables (like the API key)
 import google.generativeai as genai  # The Google Gemini API library
 from dotenv import load_dotenv  # Function to load the .env file
+import subprocess #to run shell or cmd commands
 
 def configure_api():
     """
@@ -64,6 +65,47 @@ def ask_gemini(model, query):
         # Handle potential API errors (network, quota, etc.)
         print(f"An error occurred while contacting the Gemini API: {e}")
         return "Sorry, I couldn't get a response from the API."
+    
+def execute_command(command):
+    """
+    Executes a shell command and returns its output or an error message.
+
+    Args:
+        command (str): The shell command to execute (e.g., "ls -l", "dir").
+
+    Returns:
+        str: The standard output of the command, or an error message.
+    """
+    print(f"\nExecuting local command: '{command}'")
+    try:
+        # Run the command
+        # check=True: Raises an error if the command fails
+        # capture_output=True: Catches the output
+        # text=True: Formats output as a string
+        # shell=True: Allows us to pass the command as a simple string
+        result = subprocess.run(
+            command, 
+            shell=True, 
+            check=True, 
+            capture_output=True, 
+            text=True
+        )
+
+        # Return the command's standard output
+        if result.stdout:
+            return result.stdout
+        else:
+            return "Command executed successfully (no output)."
+
+    except subprocess.CalledProcessError as e:
+        # This 'except' block runs if check=True fails (command returns an error)
+        print(f"Error executing command: {e}")
+        # Return the error message so the user knows what went wrong
+        return e.stderr
+    except FileNotFoundError as e:
+        # This 'except' block runs if the command itself isn't found
+        print(f"Error: Command not found: {e}")
+        return f"Error: The command '{command}' was not found on your system."
 
 # The 'if __name__ == "__main__":' block is a standard Python convention.
 # It means "run the code inside this block ONLY if this script is executed directly" (e.g., by running 'python main.py').
@@ -74,16 +116,28 @@ if __name__ == "__main__":
     configure_api()
     model = get_gemini_model()
     
-    # --- Step 2: Run Test ---
-    print("\n--- Starting Gemini API Test ---")
+    # --- Test 1: The "Brain" (Gemini API) ---
+    print("\n--- Starting Test 1: Gemini API Query ---")
     
-    test_query = "Who is the Prime Minister of India"
-    
+    test_query = "Who won the FIFA World Cup in 2022?"
     response_text = ask_gemini(model, test_query)
     
-    # --- Step 3: Show Results ---
     print("\n--- Gemini's Response ---")
     print(response_text)
     print("--------------------------")
-        
-    print("\n--- Test complete ---")
+
+    # --- Test 2: The "Hands" (Local Command) ---
+    print("\n--- Starting Test 2: Local Command Executor ---")
+    
+    # Let's test a simple command.
+    # Since you're using Git Bash, "ls -l" should work great.
+    test_command = "ls -l" 
+    # test_command = "dir" # <-- Use this line if you were on Windows CMD
+    
+    command_output = execute_command(test_command)
+    
+    print("\n--- Local Command's Output ---")
+    print(command_output)
+    print("-------------------------------")
+
+    print("\n--- All tests complete ---")
