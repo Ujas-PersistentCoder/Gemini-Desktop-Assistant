@@ -1,6 +1,3 @@
-# This file lists all the Python packages (libraries) this project depends on.
-# Running 'pip install -r requirements.txt' will install all of them.
-
 annotated-types==0.7.0
 cachetools==6.2.1
 certifi==2025.10.5
